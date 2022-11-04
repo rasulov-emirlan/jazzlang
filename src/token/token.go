@@ -10,8 +10,8 @@ type (
 )
 
 const (
-	ILLEGAL = "ILLEGAL"
-	EOF     = "EOF"
+	ILLEGAL TokenType = "ILLEGAL"
+	EOF     TokenType = "EOF"
 	// Identifiers + literals
 	IDENT = "IDENT" // add, foobar, x, y, ...
 	INT   = "INT"   // 1343456
