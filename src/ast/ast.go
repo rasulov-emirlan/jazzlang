@@ -36,10 +36,10 @@ type VarStatement struct {
 	Value Expression
 }
 
-func (ls *VarStatement) statementNode() {}
+func (vs *VarStatement) statementNode() {}
 
-func (ls *VarStatement) TokenLiteral() string {
-	return ls.Token.Literal
+func (vs *VarStatement) TokenLiteral() string {
+	return vs.Token.Literal
 }
 
 type Identifier struct {
