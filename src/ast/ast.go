@@ -1,6 +1,8 @@
 package ast
 
 import (
+	"strings"
+
 	"github.com/rasulov-emirlan/jazzlang/src/token"
 )
 
@@ -254,6 +256,35 @@ func (ie *IfExpression) String() string {
 		out += "else "
 		out += ie.Alternative.String()
 	}
+
+	return out
+}
+
+type FunctionLiteral struct {
+	Token      token.Token // the 'fn' token
+	Parameters []*Identifier
+	Body       *BlockStatement
+}
+
+func (fl *FunctionLiteral) expressionNode() {}
+
+func (fl *FunctionLiteral) TokenLiteral() string {
+	return fl.Token.Literal
+}
+
+func (fl *FunctionLiteral) String() string {
+	var out string
+
+	params := []string{}
+	for _, p := range fl.Parameters {
+		params = append(params, p.String())
+	}
+
+	out += fl.TokenLiteral()
+	out += "("
+	out += strings.Join(params, ", ")
+	out += ")"
+	out += fl.Body.String()
 
 	return out
 }
