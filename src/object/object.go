@@ -42,3 +42,12 @@ var _ Object = (*Null)(nil)
 
 func (n *Null) Type() ObjectType { return OBJ_NULL }
 func (n *Null) Inspect() string  { return "null" }
+
+type ReturnValue struct {
+	Value Object
+}
+
+var _ Object = (*ReturnValue)(nil)
+
+func (rv *ReturnValue) Type() ObjectType { return rv.Value.Type() }
+func (rv *ReturnValue) Inspect() string  { return rv.Value.Inspect() }
