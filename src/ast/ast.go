@@ -316,3 +316,26 @@ func (ce *CallExpression) String() string {
 
 	return out
 }
+
+type ForExpression struct {
+	Token     token.Token // the 'for' token
+	Condition Expression
+	Body      *BlockStatement
+}
+
+func (fe *ForExpression) expressionNode() {}
+
+func (fe *ForExpression) TokenLiteral() string {
+	return fe.Token.Literal
+}
+
+func (fe *ForExpression) String() string {
+	var out string
+
+	out += "for"
+	out += fe.Condition.String()
+	out += " "
+	out += fe.Body.String()
+
+	return out
+}
