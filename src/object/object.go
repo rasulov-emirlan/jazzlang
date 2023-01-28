@@ -9,6 +9,7 @@ const (
 	OBJ_BOOLEAN      = "BOOLEAN"
 	OBJ_NULL         = "NULL"
 	OBJ_RETURN_VALUE = "RETURN_VALUE"
+	OBJ_ERROR        = "ERROR"
 )
 
 type Object interface {
@@ -52,3 +53,12 @@ var _ Object = (*ReturnValue)(nil)
 
 func (rv *ReturnValue) Type() ObjectType { return OBJ_RETURN_VALUE }
 func (rv *ReturnValue) Inspect() string  { return rv.Value.Inspect() }
+
+type Error struct {
+	Message string
+}
+
+var _ Object = (*Error)(nil)
+
+func (e *Error) Type() ObjectType { return OBJ_ERROR }
+func (e *Error) Inspect() string  { return "ERROR: " + e.Message }
