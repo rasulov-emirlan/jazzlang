@@ -215,6 +215,10 @@ func TestErrorHandling(t *testing.T) {
 			}`,
 			"unknown operator: BOOLEAN + BOOLEAN",
 		},
+		{
+			"foobar",
+			"identifier not found: foobar",
+		},
 	}
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
@@ -232,11 +236,29 @@ func TestErrorHandling(t *testing.T) {
 	}
 }
 
+func TestVarStatements(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int64
+	}{
+		{"var a = 5; a;", 5},
+		{"var a = 5 * 5; a;", 25},
+		{"var a = 5; var b = a; b;", 5},
+		{"var a = 5; var b = a; var c = a + b + 5; c;", 15},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testIntegerObject(t, evaluated, tt.expected)
+	}
+}
+
 func testEval(input string) object.Object {
 	l := lexer.New(input)
 	p := parser.New(l)
 	program := p.ParseProgram()
-	return Eval(program)
+	env := object.NewEnvironment()
+	return Eval(program, env)
 }
 
 func testNullObject(t *testing.T, obj object.Object) bool {
