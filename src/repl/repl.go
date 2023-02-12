@@ -5,14 +5,17 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/rasulov-emirlan/jazzlang/src/evaluator"
 	"github.com/rasulov-emirlan/jazzlang/src/lexer"
+	"github.com/rasulov-emirlan/jazzlang/src/object"
 	"github.com/rasulov-emirlan/jazzlang/src/parser"
 )
 
-const PROMPT = ">> "
+const PROMPT = "🎵 "
 
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
+	env := object.NewEnvironment()
 
 	for {
 		fmt.Fprint(out, PROMPT)
@@ -20,7 +23,13 @@ func Start(in io.Reader, out io.Writer) {
 		if !scanned {
 			return
 		}
+
 		line := scanner.Text()
+		if line == "exit" {
+			io.WriteString(out, "Bye!👋\n")
+			return
+		}
+
 		l := lexer.New(line)
 		p := parser.New(l)
 
@@ -30,8 +39,11 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		io.WriteString(out, program.String())
-		io.WriteString(out, "\n")
+		evaluated := evaluator.Eval(program, env)
+		if evaluated != nil {
+			io.WriteString(out, evaluated.Inspect())
+			io.WriteString(out, "\n")
+		}
 	}
 }
 
