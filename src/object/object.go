@@ -17,6 +17,7 @@ const (
 	OBJ_RETURN_VALUE = "RETURN_VALUE"
 	OBJ_FUNCTION     = "FUNCTION"
 	OBJ_ERROR        = "ERROR"
+	OBJ_BUILTIN      = "BUILTIN"
 )
 
 type Object interface {
@@ -93,6 +94,17 @@ func (f *Function) Inspect() string {
 
 	return out
 }
+
+type BuiltinFunction func(args ...Object) Object
+
+type Builtin struct {
+	Fn BuiltinFunction
+}
+
+var _ Object = (*Builtin)(nil)
+
+func (b *Builtin) Type() ObjectType { return OBJ_BUILTIN }
+func (b *Builtin) Inspect() string  { return "builtin function" }
 
 type Error struct {
 	Message string
