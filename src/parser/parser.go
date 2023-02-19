@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/rasulov-emirlan/jazzlang/src/ast"
-	"github.com/rasulov-emirlan/jazzlang/src/lexer"
-	"github.com/rasulov-emirlan/jazzlang/src/token"
+	"github.com/rasulov-emirlan/sunjar/src/ast"
+	"github.com/rasulov-emirlan/sunjar/src/lexer"
+	"github.com/rasulov-emirlan/sunjar/src/token"
 )
 
 const (

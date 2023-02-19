@@ -3,8 +3,8 @@ package evaluator
 import (
 	"fmt"
 
-	"github.com/rasulov-emirlan/jazzlang/src/ast"
-	"github.com/rasulov-emirlan/jazzlang/src/object"
+	"github.com/rasulov-emirlan/sunjar/src/ast"
+	"github.com/rasulov-emirlan/sunjar/src/object"
 )
 
 var (

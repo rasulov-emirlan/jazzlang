@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/rasulov-emirlan/jazzlang/src/ast"
-	"github.com/rasulov-emirlan/jazzlang/src/lexer"
+	"github.com/rasulov-emirlan/sunjar/src/ast"
+	"github.com/rasulov-emirlan/sunjar/src/lexer"
 )
 
 func TestVarStatements(t *testing.T) {

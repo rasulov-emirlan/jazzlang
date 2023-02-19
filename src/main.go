@@ -6,8 +6,8 @@ import (
 	"os"
 	"os/user"
 
-	"github.com/rasulov-emirlan/jazzlang/src/file"
-	"github.com/rasulov-emirlan/jazzlang/src/repl"
+	"github.com/rasulov-emirlan/sunjar/src/file"
+	"github.com/rasulov-emirlan/sunjar/src/repl"
 )
 
 var isRepl = flag.Bool("repl", false, "Starts the REPL")

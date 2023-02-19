@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/rasulov-emirlan/jazzlang/src/ast"
+	"github.com/rasulov-emirlan/sunjar/src/ast"
 )
 
 type ObjectType string

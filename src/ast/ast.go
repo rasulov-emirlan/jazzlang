@@ -3,7 +3,7 @@ package ast
 import (
 	"strings"
 
-	"github.com/rasulov-emirlan/jazzlang/src/token"
+	"github.com/rasulov-emirlan/sunjar/src/token"
 )
 
 type (

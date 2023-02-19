@@ -3,9 +3,9 @@ package evaluator
 import (
 	"testing"
 
-	"github.com/rasulov-emirlan/jazzlang/src/lexer"
-	"github.com/rasulov-emirlan/jazzlang/src/object"
-	"github.com/rasulov-emirlan/jazzlang/src/parser"
+	"github.com/rasulov-emirlan/sunjar/src/lexer"
+	"github.com/rasulov-emirlan/sunjar/src/object"
+	"github.com/rasulov-emirlan/sunjar/src/parser"
 )
 
 func TestEvalIntegerExpression(t *testing.T) {

@@ -1,6 +1,6 @@
 package lexer
 
-import "github.com/rasulov-emirlan/jazzlang/src/token"
+import "github.com/rasulov-emirlan/sunjar/src/token"
 
 type Lexer struct {
 	input        string

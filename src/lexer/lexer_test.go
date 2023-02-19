@@ -3,7 +3,7 @@ package lexer
 import (
 	"testing"
 
-	"github.com/rasulov-emirlan/jazzlang/src/token"
+	"github.com/rasulov-emirlan/sunjar/src/token"
 )
 
 func TestNextToken(t *testing.T) {
