@@ -11,6 +11,7 @@ type ObjectType string
 
 const (
 	OBJ_INTEGER      = "INTEGER"
+	OBJ_STRING       = "STRING"
 	OBJ_BOOLEAN      = "BOOLEAN"
 	OBJ_NULL         = "NULL"
 	OBJ_RETURN_VALUE = "RETURN_VALUE"
@@ -34,6 +35,15 @@ var _ Object = (*Integer)(nil)
 
 func (i *Integer) Type() ObjectType { return OBJ_INTEGER }
 func (i *Integer) Inspect() string  { return fmt.Sprintf("%d", i.Value) }
+
+type String struct {
+	Value string
+}
+
+var _ Object = (*String)(nil)
+
+func (s *String) Type() ObjectType { return OBJ_STRING }
+func (s *String) Inspect() string  { return s.Value }
 
 type Boolean struct {
 	Value bool
