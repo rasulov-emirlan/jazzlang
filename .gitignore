@@ -4,10 +4,10 @@
 *.dll
 *.so
 *.dylib
-
+bin
 # Test binary, built with `go test -c`
 *.test
-
+test.jazz
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
