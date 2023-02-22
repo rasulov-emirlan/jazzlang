@@ -1,0 +1,25 @@
+{
+  "name": "sunj",
+  "displayName": "sunjar",
+  "description": "Simple programming language for fun",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "sunjar",
+      "aliases": ["sunjar", "sunjar"],
+      "extensions": [".sunj"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "sunjar",
+      "scopeName": "main.sunj",
+      "path": "./syntaxes/sunjar.tmLanguage.json"
+    }]
+  }
+}

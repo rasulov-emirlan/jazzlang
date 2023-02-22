@@ -1,0 +1,46 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "sunjar",
+	"patterns": [
+		{
+			"include":"#flow-control"
+		},
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#strings"
+		}
+	],
+	"repository": {
+		"keywords": {
+			"patterns": [{
+				"name": "entity.name.function.sunjar",
+				"match": "\\b(fn)\\b"
+			},
+			{
+				"name": "variable.sunjar",
+				"match": "\\b(var)\\b"
+			}
+		]
+		},
+		"flow-control": {
+			"patterns": [{
+				"name": "keyword.control.sunjar",
+				"match": "\\b(if|else|while|for|break|continue|return)\\b"
+			}]
+		},
+		"strings": {
+			"name": "string.quoted.double.sunjar",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.sunjar",
+					"match": "\\\\."
+				}
+			]
+		}
+	},
+	"scopeName": "main.sunj"
+}
