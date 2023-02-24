@@ -409,6 +409,32 @@ func TestArrayIndexExpressions(t *testing.T) {
 	}
 }
 
+func TestLoops(t *testing.T) {
+	input := `
+	var i = 0;
+	for i < 10 {
+		i = i + 1;
+	}
+	i;
+	`
+	expected := 10
+
+	l := lexer.New(input)
+	p := parser.New(l)
+	program := p.ParseProgram()
+	env := object.NewEnvironment()
+	e := Eval(program, env)
+	if e == NULL {
+		t.Error("did not expect null")
+	}
+
+	if isError(e) {
+		t.Errorf("error: %s", e.Inspect())
+	}
+
+	testIntegerObject(t, e, int64(expected))
+}
+
 func testEval(input string) object.Object {
 	l := lexer.New(input)
 	p := parser.New(l)

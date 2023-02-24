@@ -116,6 +116,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		}
 
 		return evalIndexExpression(left, index)
+	case *ast.ForExpression:
+		return evalForExpression(node, env)
 	default:
 		return nil
 	}
@@ -286,6 +288,25 @@ func evalIfExpression(ie *ast.IfExpression, env *object.Environment) object.Obje
 		return Eval(ie.Alternative, env)
 	}
 	return NULL
+}
+
+func evalForExpression(fle *ast.ForExpression, env *object.Environment) object.Object {
+	rt := &object.Boolean{Value: true}
+	for {
+		condition := Eval(fle.Condition, env)
+		if isError(condition) {
+			return condition
+		}
+		if isTruthy(condition) {
+			rt := Eval(fle.Body, env)
+			if !isError(rt) && (rt.Type() == object.OBJ_RETURN_VALUE || rt.Type() == object.OBJ_ERROR) {
+				return rt
+			}
+		} else {
+			break
+		}
+	}
+	return rt
 }
 
 func applyFunction(fn object.Object, args []object.Object) object.Object {
