@@ -354,3 +354,47 @@ func (fe *ForExpression) String() string {
 
 	return out
 }
+
+type ArrayLiteral struct {
+	Token    token.Token // the '[' token
+	Elements []Expression
+}
+
+func (al *ArrayLiteral) expressionNode() {}
+
+func (al *ArrayLiteral) TokenLiteral() string {
+	return al.Token.Literal
+}
+
+func (al *ArrayLiteral) String() string {
+	var out string
+
+	elements := []string{}
+	for _, e := range al.Elements {
+		elements = append(elements, e.String())
+	}
+
+	out += "[" + strings.Join(elements, ", ") + "]"
+
+	return out
+}
+
+type IndexExpression struct {
+	Token token.Token // the '[' token
+	Left  Expression
+	Index Expression
+}
+
+func (ie *IndexExpression) expressionNode() {}
+
+func (ie *IndexExpression) TokenLiteral() string {
+	return ie.Token.Literal
+}
+
+func (ie *IndexExpression) String() string {
+	var out string
+
+	out += "(" + ie.Left.String() + "[" + ie.Index.String() + "])"
+
+	return out
+}
