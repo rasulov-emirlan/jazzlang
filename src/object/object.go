@@ -19,6 +19,7 @@ const (
 	OBJ_ERROR        = "ERROR"
 	OBJ_BUILTIN      = "BUILTIN"
 	OBJ_ARRAY        = "ARRAY"
+	OBJ_LOOP         = "LOOP"
 )
 
 type Object interface {
@@ -124,6 +125,26 @@ func (ao *Array) Inspect() string {
 	}
 
 	out += fmt.Sprintf("[%s]", strings.Join(elements, ", "))
+
+	return out
+}
+
+type Loop struct {
+	Condition ast.Expression
+	Body      *ast.BlockStatement
+	Env       *Environment
+}
+
+var _ Object = (*Loop)(nil)
+
+func (l *Loop) Type() ObjectType { return OBJ_LOOP }
+
+func (l *Loop) Inspect() string {
+	var out string
+
+	out += fmt.Sprintf("loop(%s) {\n", l.Condition.String())
+	out += l.Body.String()
+	out += "}"
 
 	return out
 }
