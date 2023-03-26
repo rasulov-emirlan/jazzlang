@@ -6,13 +6,14 @@ import (
 
 	"github.com/rasulov-emirlan/sunjar/src/ast"
 	"github.com/rasulov-emirlan/sunjar/src/lexer"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestVarStatements(t *testing.T) {
 	tests := []struct {
 		input              string
 		expectedIdentifier string
-		expectedValue      interface{}
+		expectedValue      any
 	}{
 		{"var x = 5;", "x", 5},
 		{"var y = true;", "y", true},
@@ -680,6 +681,66 @@ func TestParsingIndexExpressions(t *testing.T) {
 	}
 	if !testInfixExpression(t, indexExp.Index, 1, "+", 1) {
 		return
+	}
+}
+
+func TestParsingHashLiteralStringKeys(t *testing.T) {
+	input := `{"one": 1, "two": 2, "three": 3}`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	stmt := program.Statements[0].(*ast.ExpressionStatement)
+	assert.IsType(t, &ast.HashLiteral{}, stmt.Expression)
+	hash := stmt.Expression.(*ast.HashLiteral)
+	assert.Len(t, hash.Pairs, 3)
+
+	expected := map[string]int64{
+		"one":   1,
+		"two":   2,
+		"three": 3,
+	}
+
+	for key, value := range hash.Pairs {
+		assert.IsType(t, &ast.StringLiteral{}, key)
+		literal := key.(*ast.StringLiteral)
+		expectedValue := expected[literal.String()]
+		testIntegerLiteral(t, value, expectedValue)
+	}
+}
+
+func TestParsingHashLiteralsWithExpressions(t *testing.T) {
+	input := `{"one": 0 + 1, "two": 10 - 8, "three": 15 / 5}`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	stmt := program.Statements[0].(*ast.ExpressionStatement)
+	assert.IsType(t, &ast.HashLiteral{}, stmt.Expression)
+	hash := stmt.Expression.(*ast.HashLiteral)
+	assert.Len(t, hash.Pairs, 3)
+
+	tests := map[string]func(ast.Expression){
+		"one": func(e ast.Expression) {
+			testInfixExpression(t, e, 0, "+", 1)
+		},
+		"two": func(e ast.Expression) {
+			testInfixExpression(t, e, 10, "-", 8)
+		},
+		"three": func(e ast.Expression) {
+			testInfixExpression(t, e, 15, "/", 5)
+		},
+	}
+
+	for key, value := range hash.Pairs {
+		assert.IsType(t, &ast.StringLiteral{}, key)
+		literal := key.(*ast.StringLiteral)
+		assert.Contains(t, tests, literal.String())
+		tests[literal.String()](value)
 	}
 }
 

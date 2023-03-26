@@ -2,6 +2,7 @@ package object
 
 import (
 	"fmt"
+	"hash/fnv"
 	"strings"
 
 	"github.com/rasulov-emirlan/sunjar/src/ast"
@@ -19,16 +20,23 @@ const (
 	OBJ_ERROR        = "ERROR"
 	OBJ_BUILTIN      = "BUILTIN"
 	OBJ_ARRAY        = "ARRAY"
+	OBJ_HASH         = "HASH"
 	OBJ_LOOP         = "LOOP"
 )
 
-type Object interface {
-	Type() ObjectType
+type (
+	Object interface {
+		Type() ObjectType
 
-	// Returns a string representation of the object.
-	// Most of the time, this will be the literal value of the object.
-	Inspect() string
-}
+		// Returns a string representation of the object.
+		// Most of the time, this will be the literal value of the object.
+		Inspect() string
+	}
+
+	Hashable interface {
+		HashKey() HashKey
+	}
+)
 
 type Integer struct {
 	Value int64
@@ -38,24 +46,41 @@ var _ Object = (*Integer)(nil)
 
 func (i *Integer) Type() ObjectType { return OBJ_INTEGER }
 func (i *Integer) Inspect() string  { return fmt.Sprintf("%d", i.Value) }
+func (i *Integer) HashKey() HashKey {
+	return HashKey{Type: i.Type(), Value: uint64(i.Value)}
+}
 
 type String struct {
 	Value string
 }
 
 var _ Object = (*String)(nil)
+var _ Hashable = (*String)(nil)
 
 func (s *String) Type() ObjectType { return OBJ_STRING }
 func (s *String) Inspect() string  { return s.Value }
+func (s *String) HashKey() HashKey {
+	h := fnv.New64a()
+	h.Write([]byte(s.Value))
+	return HashKey{Type: s.Type(), Value: h.Sum64()}
+}
 
 type Boolean struct {
 	Value bool
 }
 
 var _ Object = (*Boolean)(nil)
+var _ Hashable = (*Boolean)(nil)
 
 func (b *Boolean) Type() ObjectType { return OBJ_BOOLEAN }
 func (b *Boolean) Inspect() string  { return fmt.Sprintf("%t", b.Value) }
+func (b *Boolean) HashKey() HashKey {
+	value := 0
+	if b.Value {
+		value = 1
+	}
+	return HashKey{Type: b.Type(), Value: uint64(value)}
+}
 
 type Null struct{}
 
@@ -129,6 +154,39 @@ func (ao *Array) Inspect() string {
 	return out
 }
 
+// HASH MAPS
+type (
+	HashKey struct {
+		Type  ObjectType
+		Value uint64
+	}
+
+	HashPair struct {
+		Key   Object
+		Value Object
+	}
+
+	Hash struct {
+		Pairs map[HashKey]HashPair
+	}
+)
+
+var _ Object = (*Hash)(nil)
+
+func (h *Hash) Type() ObjectType { return OBJ_HASH }
+func (h *Hash) Inspect() string {
+	var out string
+
+	pairs := []string{}
+	for _, pair := range h.Pairs {
+		pairs = append(pairs, fmt.Sprintf("%s: %s", pair.Key.Inspect(), pair.Value.Inspect()))
+	}
+
+	out += fmt.Sprintf("{%s}", strings.Join(pairs, ", "))
+
+	return out
+}
+
 type Loop struct {
 	Condition ast.Expression
 	Body      *ast.BlockStatement
@@ -138,7 +196,6 @@ type Loop struct {
 var _ Object = (*Loop)(nil)
 
 func (l *Loop) Type() ObjectType { return OBJ_LOOP }
-
 func (l *Loop) Inspect() string {
 	var out string
 

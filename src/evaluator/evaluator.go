@@ -23,6 +23,8 @@ var (
 					return &object.Integer{Value: int64(len(arg.Value))}
 				case *object.Array:
 					return &object.Integer{Value: int64(len(arg.Elements))}
+				case *object.Hash:
+					return &object.Integer{Value: int64(len(arg.Pairs))}
 				default:
 					return newError("argument to `len` not supported, got %s", args[0].Type())
 				}
@@ -105,6 +107,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			return elements[0]
 		}
 		return &object.Array{Elements: elements}
+	case *ast.HashLiteral:
+		return evalHashLiteral(node, env)
 	case *ast.IndexExpression:
 		left := Eval(node.Left, env)
 		if isError(left) {
@@ -358,6 +362,8 @@ func evalIndexExpression(left, index object.Object) object.Object {
 	switch {
 	case left.Type() == object.OBJ_ARRAY && index.Type() == object.OBJ_INTEGER:
 		return evalArrayIndexExpression(left, index)
+	case left.Type() == object.OBJ_HASH:
+		return evalHashIndexExpression(left, index)
 	default:
 		return newError("index operator not supported: %s", left.Type())
 	}
@@ -377,6 +383,49 @@ func evalArrayIndexExpression(array, index object.Object) object.Object {
 	}
 
 	return arrayObject.Elements[idx]
+}
+
+func evalHashIndexExpression(hash, index object.Object) object.Object {
+	hashObject := hash.(*object.Hash)
+
+	key, ok := index.(object.Hashable)
+	if !ok {
+		return newError("unusable as hash key: %s", index.Type())
+	}
+
+	pair, ok := hashObject.Pairs[key.HashKey()]
+	if !ok {
+		// TODO: add some sort of null safety here
+		return NULL
+	}
+
+	return pair.Value
+}
+
+func evalHashLiteral(node *ast.HashLiteral, env *object.Environment) object.Object {
+	pairs := make(map[object.HashKey]object.HashPair)
+
+	for keyNode, valueNode := range node.Pairs {
+		key := Eval(keyNode, env)
+		if isError(key) {
+			return key
+		}
+
+		hashKey, ok := key.(object.Hashable)
+		if !ok {
+			return newError("unusable as hash key: %s", key.Type())
+		}
+
+		val := Eval(valueNode, env)
+		if isError(val) {
+			return val
+		}
+
+		hashed := hashKey.HashKey()
+		pairs[hashed] = object.HashPair{Key: key, Value: val}
+	}
+
+	return &object.Hash{Pairs: pairs}
 }
 
 func isTruthy(o object.Object) bool {

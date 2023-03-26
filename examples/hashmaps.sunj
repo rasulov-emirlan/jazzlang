@@ -1,0 +1,9 @@
+var m = {
+  "one": 1,
+  "two": true,
+  "three": "three",
+}
+
+print(m["one"])
+print(m["two"])
+print(m["three"])
