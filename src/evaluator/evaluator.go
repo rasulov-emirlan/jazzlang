@@ -301,14 +301,15 @@ func evalForExpression(fle *ast.ForExpression, env *object.Environment) object.O
 		if isError(condition) {
 			return condition
 		}
-		if isTruthy(condition) {
-			rt := Eval(fle.Body, env)
-			if !isError(rt) && (rt.Type() == object.OBJ_RETURN_VALUE || rt.Type() == object.OBJ_ERROR) {
-				return rt
-			}
-		} else {
+		if !isTruthy(condition) {
 			break
 		}
+
+		body := Eval(fle.Body, env)
+		if isError(body) {
+			return body
+		}
+
 	}
 	return rt
 }
@@ -375,11 +376,8 @@ func evalArrayIndexExpression(array, index object.Object) object.Object {
 	max := int64(len(arrayObject.Elements) - 1)
 
 	if idx < 0 || idx > max {
-		// TODO: this is "null safety" in our lang.
-		// Maybe in the future we can panic or something
-		return &object.Integer{
-			Value: 0,
-		}
+		// TODO: add some sort of null safety here
+		return NULL
 	}
 
 	return arrayObject.Elements[idx]

@@ -500,7 +500,7 @@ func TestLoops(t *testing.T) {
 	input := `
 	var i = 0;
 	for i < 10 {
-		i = i + 1;
+		var i = i + 1;
 	}
 	i;
 	`
