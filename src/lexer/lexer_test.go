@@ -37,6 +37,8 @@ func TestNextToken(t *testing.T) {
 						}
 
 						{"foo": "bar"}
+
+						var float = 1.2;
 						`
 
 	tests := []struct {
@@ -148,6 +150,11 @@ func TestNextToken(t *testing.T) {
 		{token.COLON, ":"},
 		{token.STRING, "bar"},
 		{token.RBRACE, "}"},
+		{token.VAR, "var"},
+		{token.IDENT, "float"},
+		{token.ASSIGN, "="},
+		{token.FLOAT, "1.2"},
+		{token.SEMICOLON, ";"},
 		{token.EOF, ""},
 	}
 

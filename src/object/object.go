@@ -12,6 +12,7 @@ type ObjectType string
 
 const (
 	OBJ_INTEGER      = "INTEGER"
+	OBJ_FLOAT        = "FLOAT"
 	OBJ_STRING       = "STRING"
 	OBJ_BOOLEAN      = "BOOLEAN"
 	OBJ_NULL         = "NULL"
@@ -48,6 +49,18 @@ func (i *Integer) Type() ObjectType { return OBJ_INTEGER }
 func (i *Integer) Inspect() string  { return fmt.Sprintf("%d", i.Value) }
 func (i *Integer) HashKey() HashKey {
 	return HashKey{Type: i.Type(), Value: uint64(i.Value)}
+}
+
+type Float struct {
+	Value float64
+}
+
+var _ Object = (*Float)(nil)
+
+func (f *Float) Type() ObjectType { return OBJ_FLOAT }
+func (f *Float) Inspect() string  { return fmt.Sprintf("%f", f.Value) }
+func (f *Float) HashKey() HashKey {
+	return HashKey{Type: f.Type(), Value: uint64(f.Value)}
 }
 
 type String struct {

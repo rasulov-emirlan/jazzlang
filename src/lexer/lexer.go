@@ -1,6 +1,10 @@
 package lexer
 
-import "github.com/rasulov-emirlan/sunjar/src/token"
+import (
+	"strings"
+
+	"github.com/rasulov-emirlan/sunjar/src/token"
+)
 
 type Lexer struct {
 	input        string
@@ -80,8 +84,12 @@ func (l *Lexer) NextToken() token.Token {
 			return tok
 		}
 		if isDigit(l.currentChar) {
-			tok.Type = token.INT
 			tok.Literal = l.readNumber()
+			if strings.Contains(tok.Literal, ".") {
+				tok.Type = token.FLOAT
+				return tok
+			}
+			tok.Type = token.INT
 			return tok
 		}
 		tok = newToken(token.ILLEGAL, l.currentChar)
@@ -129,7 +137,7 @@ func isLetter(character byte) bool {
 }
 
 func isDigit(character byte) bool {
-	return '0' <= character && character <= '9'
+	return '0' <= character && character <= '9' || character == '.'
 }
 
 // readIdentifier reads a sequence of characters that are letters

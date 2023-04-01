@@ -150,6 +150,24 @@ func TestIntegerLiteralExpression(t *testing.T) {
 	}
 }
 
+func TestFloatLiteralExpression(t *testing.T) {
+	input := "5.5;"
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+	if len(program.Statements) != 1 {
+		t.Fatalf("program has not enough statements. got=%d",
+			len(program.Statements))
+	}
+	assert.IsType(t, &ast.ExpressionStatement{}, program.Statements[0])
+	stmt := program.Statements[0].(*ast.ExpressionStatement)
+	assert.IsType(t, &ast.FloatLiteral{}, stmt.Expression)
+	literal := stmt.Expression.(*ast.FloatLiteral)
+	assert.Equal(t, 5.5, literal.Value)
+	assert.Equal(t, "5.5", literal.TokenLiteral())
+}
+
 func TestStringLiteralExpression(t *testing.T) {
 	input := `"hello world";`
 	l := lexer.New(input)
@@ -208,9 +226,9 @@ func TestBooleanExpression(t *testing.T) {
 
 func TestParsingPrefixExpressions(t *testing.T) {
 	prefixTests := []struct {
-		input        string
-		operator     string
-		integerValue any
+		input    string
+		operator string
+		value    any
 	}{
 		{"!5;", "!", 5},
 		{"-15;", "-", 15},
@@ -240,7 +258,7 @@ func TestParsingPrefixExpressions(t *testing.T) {
 				tt.operator, exp.Operator)
 		}
 
-		if !testLiteralExpression(t, exp.Right, tt.integerValue) {
+		if !testLiteralExpression(t, exp.Right, tt.value) {
 			return
 		}
 	}
@@ -772,6 +790,10 @@ func testLiteralExpression(
 		return testIntegerLiteral(t, exp, int64(v))
 	case int64:
 		return testIntegerLiteral(t, exp, v)
+	case float32:
+		return testFloatLiteral(t, exp, float64(v))
+	case float64:
+		return testFloatLiteral(t, exp, v)
 	case string:
 		return testIdentifier(t, exp, v)
 	case bool:
@@ -779,6 +801,14 @@ func testLiteralExpression(
 	}
 	t.Errorf("type of exp not handled. got=%T", exp)
 	return false
+}
+
+func testFloatLiteral(t *testing.T, exp ast.Expression, value float64) bool {
+	assert.IsType(t, &ast.FloatLiteral{}, exp)
+	f := exp.(*ast.FloatLiteral)
+	assert.Equal(t, value, f.Value)
+	assert.Equal(t, fmt.Sprintf("%f", value), f.TokenLiteral())
+	return true
 }
 
 func testBooleanLiteral(t *testing.T, exp ast.Expression, value bool) bool {
