@@ -290,9 +290,15 @@ func (ie *IfExpression) String() string {
 	return out
 }
 
+type FunctionParam struct {
+	Name *Identifier
+	Type string
+}
+
 type FunctionLiteral struct {
 	Token      token.Token // the 'fn' token
-	Parameters []*Identifier
+	Parameters []FunctionParam
+	RetyrnType string
 	Body       *BlockStatement
 }
 
@@ -307,13 +313,14 @@ func (fl *FunctionLiteral) String() string {
 
 	params := []string{}
 	for _, p := range fl.Parameters {
-		params = append(params, p.String())
+		params = append(params, p.Name.String()+" "+p.Type)
 	}
 
 	out += fl.TokenLiteral()
 	out += "("
 	out += strings.Join(params, ", ")
 	out += ")"
+	out += " " + fl.RetyrnType
 	out += fl.Body.String()
 
 	return out

@@ -80,6 +80,10 @@ func (l *Lexer) NextToken() token.Token {
 	default:
 		if isLetter(l.currentChar) {
 			tok.Literal = l.readIdentifier()
+			if isBuiltInType(tok.Literal) {
+				tok.Type = token.TYPE
+				return tok
+			}
 			tok.Type = token.LookupIdent(tok.Literal)
 			return tok
 		}
@@ -138,6 +142,15 @@ func isLetter(character byte) bool {
 
 func isDigit(character byte) bool {
 	return '0' <= character && character <= '9' || character == '.'
+}
+
+func isBuiltInType(s string) bool {
+	switch s {
+	case "int", "float", "string", "bool":
+		return true
+	default:
+		return false
+	}
 }
 
 // readIdentifier reads a sequence of characters that are letters

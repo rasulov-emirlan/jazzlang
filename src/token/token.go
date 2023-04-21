@@ -17,6 +17,9 @@ const (
 	INT    = "INT"    // 1343456
 	FLOAT  = "FLOAT"  // 1.234
 	STRING = "STRING" // "foobar"
+
+	TYPE = "TYPE" // int, float, string, bool, fn
+
 	// Operators
 	ASSIGN   = "="
 	PLUS     = "+"

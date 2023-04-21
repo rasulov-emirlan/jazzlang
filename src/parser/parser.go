@@ -343,8 +343,8 @@ func (p *Parser) parseFunctionLiteral() ast.Expression {
 	return lit
 }
 
-func (p *Parser) parseFunctionParameters() []*ast.Identifier {
-	identifiers := []*ast.Identifier{}
+func (p *Parser) parseFunctionParameters() []ast.FunctionParam {
+	identifiers := []ast.FunctionParam{}
 
 	if p.peekTokenIs(token.RPAREN) {
 		p.nextToken()
@@ -354,13 +354,17 @@ func (p *Parser) parseFunctionParameters() []*ast.Identifier {
 	p.nextToken()
 
 	ident := &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
-	identifiers = append(identifiers, ident)
+	identifiers = append(identifiers,
+		ast.FunctionParam{Name: ident, Type: ""},
+	)
 
 	for p.peekTokenIs(token.COMMA) {
 		p.nextToken()
 		p.nextToken()
 		ident := &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
-		identifiers = append(identifiers, ident)
+		identifiers = append(identifiers,
+			ast.FunctionParam{Name: ident, Type: ""},
+		)
 	}
 
 	if !p.expectPeek(token.RPAREN) {

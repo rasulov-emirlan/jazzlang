@@ -10,7 +10,7 @@ func TestNextToken(t *testing.T) {
 	input := `var five = 5;
 						var ten = 10;
 
-						var add = fn(x, y) {
+						var add = fn(x int, y int) int {
 						  x + y;
 						};
 						
@@ -38,7 +38,7 @@ func TestNextToken(t *testing.T) {
 
 						{"foo": "bar"}
 
-						var float = 1.2;
+						var f = 1.2;
 						`
 
 	tests := []struct {
@@ -61,9 +61,12 @@ func TestNextToken(t *testing.T) {
 		{token.FUNCTION, "fn"},
 		{token.LPAREN, "("},
 		{token.IDENT, "x"},
+		{token.TYPE, "int"},
 		{token.COMMA, ","},
 		{token.IDENT, "y"},
+		{token.TYPE, "int"},
 		{token.RPAREN, ")"},
+		{token.TYPE, "int"},
 		{token.LBRACE, "{"},
 		{token.IDENT, "x"},
 		{token.PLUS, "+"},
@@ -151,7 +154,7 @@ func TestNextToken(t *testing.T) {
 		{token.STRING, "bar"},
 		{token.RBRACE, "}"},
 		{token.VAR, "var"},
-		{token.IDENT, "float"},
+		{token.IDENT, "f"},
 		{token.ASSIGN, "="},
 		{token.FLOAT, "1.2"},
 		{token.SEMICOLON, ";"},
