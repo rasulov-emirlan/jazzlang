@@ -38,6 +38,27 @@ var (
 				return NULL
 			},
 		},
+		"scan": {
+			Fn: func(args ...object.Object) object.Object {
+				var err error
+				for _, arg := range args {
+					switch a := arg.(type) {
+					case *object.String:
+						_, err = fmt.Scanf("%s", &a.Value)
+					case *object.Integer:
+						_, err = fmt.Scanf("%d", &a.Value)
+					case *object.Float:
+						_, err = fmt.Scan("%f", &a.Value)
+					default:
+						return newError("argument to `scan` not supported, got %s", args[0].Type())
+					}
+				}
+				if err != nil {
+					return newError("error while scanning: %s", err)
+				}
+				return NULL
+			},
+		},
 	}
 )
 
