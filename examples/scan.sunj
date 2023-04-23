@@ -1,0 +1,14 @@
+var name = "";
+var age = 0;
+
+print("Please, enter your firstname and age separated by a space?");
+
+scan(name, age);
+
+print("Hello, " + name + "!");
+
+if age < 18 {
+  print("You are too young to vote.");
+} else {
+  print("You are old enough to vote.");
+}
