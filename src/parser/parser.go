@@ -47,6 +47,10 @@ type Parser struct {
 	prefixParseFns map[token.TokenType]prefixParseFn
 	infixParseFns  map[token.TokenType]infixParseFn
 
+	// used for checking correctness of return types at parsing stage
+	// if we are not inside of a function, we set it to nil
+	currFunction *ast.FunctionLiteral
+
 	errors []string
 }
 
@@ -158,7 +162,52 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 		p.nextToken()
 	}
 
+	p.checkFunctionReturnType(stmt.ReturnValue)
+
 	return stmt
+}
+
+func (p *Parser) checkFunctionReturnType(actualValue ast.Expression) {
+	if p.currFunction == nil {
+		return
+	}
+	if p.currFunction.ReturnType == "" && actualValue != nil {
+		p.errors = append(
+			p.errors,
+			fmt.Sprintf(
+				"returning type mismatch in function: want=%s, have=%T",
+				p.currFunction.ReturnType,
+				stringifyExpressionType(actualValue),
+			),
+		)
+		return
+	}
+
+	if p.currFunction.ReturnType != stringifyExpressionType(actualValue) {
+		p.errors = append(
+			p.errors,
+			fmt.Sprintf(
+				"returning type mismatch in function: want=%s, have=%T",
+				p.currFunction.ReturnType,
+				stringifyExpressionType(actualValue),
+			),
+		)
+	}
+}
+
+func stringifyExpressionType(exp ast.Expression) string {
+	switch exp.(type) {
+	case *ast.IntegerLiteral:
+		return "int"
+	case *ast.FloatLiteral:
+		return "float"
+	case *ast.StringLiteral:
+		return "string"
+	case *ast.Boolean:
+		return "bool"
+	default:
+		return "UNKNOWN"
+	}
 }
 
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
@@ -334,11 +383,21 @@ func (p *Parser) parseFunctionLiteral() ast.Expression {
 
 	lit.Parameters = p.parseFunctionParameters()
 
+	// parse return type
+	if p.peekTokenIs(token.TYPE) {
+		p.nextToken()
+		lit.ReturnType = p.curToken.Literal
+		if p.curToken.Literal == "" {
+			lit.ReturnType = "void"
+		}
+	}
+
+	p.currFunction = lit
 	if !p.expectPeek(token.LBRACE) {
 		return nil
 	}
-
 	lit.Body = p.parseBlockStatement()
+	p.currFunction = nil
 
 	return lit
 }

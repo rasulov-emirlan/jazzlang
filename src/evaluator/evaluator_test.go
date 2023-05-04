@@ -265,7 +265,7 @@ func TestErrorHandling(t *testing.T) {
 			"unusable as hash key: FUNCTION",
 		},
 		{
-			"var f = fn(x int, y int) { x + y; }; f(5, true);",
+			"var f = fn(x int, y int) int { x + y; }; f(5, true);",
 			"argument 1 wrong type: want=INTEGER, got=BOOLEAN",
 		},
 	}

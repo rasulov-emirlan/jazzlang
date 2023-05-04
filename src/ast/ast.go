@@ -298,7 +298,7 @@ type FunctionParam struct {
 type FunctionLiteral struct {
 	Token      token.Token // the 'fn' token
 	Parameters []FunctionParam
-	RetyrnType string
+	ReturnType string
 	Body       *BlockStatement
 }
 
@@ -320,7 +320,7 @@ func (fl *FunctionLiteral) String() string {
 	out += "("
 	out += strings.Join(params, ", ")
 	out += ")"
-	out += " " + fl.RetyrnType
+	out += " " + fl.ReturnType
 	out += fl.Body.String()
 
 	return out

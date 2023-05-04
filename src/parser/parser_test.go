@@ -574,7 +574,7 @@ func TestForExpression(t *testing.T) {
 }
 
 func TestFunctionLiteralParsing(t *testing.T) {
-	input := `fn(x int, y int) { x + y; }`
+	input := `fn(x int, y int) int { x + y; }`
 	l := lexer.New(input)
 	p := New(l)
 	program := p.ParseProgram()
@@ -589,6 +589,14 @@ func TestFunctionLiteralParsing(t *testing.T) {
 	assert.Equal(t, "y", function.Parameters[1].Name.String())
 	assert.Equal(t, "int", function.Parameters[0].Type)
 	assert.Equal(t, "int", function.Parameters[1].Type)
+
+	// returning anything when return type is void is not allowed
+	input = `fn(x int, y int) { return x + y; }`
+	l = lexer.New(input)
+	p = New(l)
+	p.ParseProgram()
+	assert.Len(t, p.errors, 1)
+	assert.Equal(t, "returning type mismatch in function: want=void, have=int", p.errors[0])
 }
 
 func TestFunctionParameterParsing(t *testing.T) {
@@ -618,8 +626,27 @@ func TestFunctionParameterParsing(t *testing.T) {
 	}
 }
 
+func TestFunctionReturns(t *testing.T) {
+	input := "var f = fn(x int, y int) int { return x + y; };"
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+	assert.Len(t, program.Statements, 1)
+	assert.IsType(t, &ast.VarStatement{}, program.Statements[0])
+	varStmt := program.Statements[0].(*ast.VarStatement)
+	assert.Equal(t, "f", varStmt.Name.String())
+	assert.IsType(t, &ast.FunctionLiteral{}, varStmt.Value)
+	function := varStmt.Value.(*ast.FunctionLiteral)
+	assert.Equal(t, "int", function.ReturnType)
+}
+
 func TestCallExpressionParsing(t *testing.T) {
-	input := "add(1, 2 * 3, 4 + 5);"
+	input :=
+		`var add = fn(x int, y int, z int) int {
+		return x + y + z;
+	};
+	add(1, 2 * 3, 4 + 5);`
 	l := lexer.New(input)
 	p := New(l)
 	program := p.ParseProgram()
