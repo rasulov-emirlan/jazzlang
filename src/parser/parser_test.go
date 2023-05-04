@@ -574,41 +574,21 @@ func TestForExpression(t *testing.T) {
 }
 
 func TestFunctionLiteralParsing(t *testing.T) {
-	input := `fn(x, y) { x + y; }`
+	input := `fn(x int, y int) { x + y; }`
 	l := lexer.New(input)
 	p := New(l)
 	program := p.ParseProgram()
 	checkParserErrors(t, p)
-	if len(program.Statements) != 1 {
-		t.Fatalf("program.Statements does not contain %d statements. got=%d\n",
-			1, len(program.Statements))
-	}
-	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
-	if !ok {
-		t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. got=%T",
-			program.Statements[0])
-	}
-	function, ok := stmt.Expression.(*ast.FunctionLiteral)
-	if !ok {
-		t.Fatalf("stmt.Expression is not ast.FunctionLiteral. got=%T",
-			stmt.Expression)
-	}
-	if len(function.Parameters) != 2 {
-		t.Fatalf("function literal parameters wrong. want 2, got=%d\n",
-			len(function.Parameters))
-	}
-	testLiteralExpression(t, function.Parameters[0].Name, "x")
-	testLiteralExpression(t, function.Parameters[1].Name, "y")
-	if len(function.Body.Statements) != 1 {
-		t.Fatalf("function.Body.Statements has not 1 statements. got=%d\n",
-			len(function.Body.Statements))
-	}
-	bodyStmt, ok := function.Body.Statements[0].(*ast.ExpressionStatement)
-	if !ok {
-		t.Fatalf("function body stmt is not ast.ExpressionStatement. got=%T",
-			function.Body.Statements[0])
-	}
-	testInfixExpression(t, bodyStmt.Expression, "x", "+", "y")
+	assert.Len(t, program.Statements, 1)
+	assert.IsType(t, &ast.ExpressionStatement{}, program.Statements[0])
+	bodyStmt := program.Statements[0].(*ast.ExpressionStatement)
+	assert.IsType(t, &ast.FunctionLiteral{}, bodyStmt.Expression)
+	function := bodyStmt.Expression.(*ast.FunctionLiteral)
+	assert.Len(t, function.Parameters, 2)
+	assert.Equal(t, "x", function.Parameters[0].Name.String())
+	assert.Equal(t, "y", function.Parameters[1].Name.String())
+	assert.Equal(t, "int", function.Parameters[0].Type)
+	assert.Equal(t, "int", function.Parameters[1].Type)
 }
 
 func TestFunctionParameterParsing(t *testing.T) {
@@ -617,8 +597,8 @@ func TestFunctionParameterParsing(t *testing.T) {
 		expected []string
 	}{
 		{"fn() {};", []string{}},
-		{"fn(x) {};", []string{"x"}},
-		{"fn(x, y, z) {};", []string{"x", "y", "z"}},
+		{"fn(x int) {};", []string{"x int"}},
+		{"fn(x int, y float, z string) {};", []string{"x int", "y float", "z string"}},
 	}
 	for _, tt := range tests {
 		l := lexer.New(tt.input)
@@ -627,12 +607,13 @@ func TestFunctionParameterParsing(t *testing.T) {
 		checkParserErrors(t, p)
 		stmt := program.Statements[0].(*ast.ExpressionStatement)
 		function := stmt.Expression.(*ast.FunctionLiteral)
-		if len(function.Parameters) != len(tt.expected) {
-			t.Errorf("length parameters wrong. want %d, got=%d\n",
-				len(tt.expected), len(function.Parameters))
-		}
+		assert.Len(t, function.Parameters, len(tt.expected))
 		for i, ident := range tt.expected {
-			testLiteralExpression(t, function.Parameters[i].Name, ident)
+			assert.Equal(
+				t,
+				ident,
+				function.Parameters[i].Name.String()+" "+function.Parameters[i].Type,
+			)
 		}
 	}
 }

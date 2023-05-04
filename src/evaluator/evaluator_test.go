@@ -261,8 +261,12 @@ func TestErrorHandling(t *testing.T) {
 			"unknown operator: STRING - STRING",
 		},
 		{
-			`{"name": "Monkey"}[fn(x) { x }];`,
+			`{"name": "Monkey"}[fn(x int) { x }];`,
 			"unusable as hash key: FUNCTION",
+		},
+		{
+			"var f = fn(x int, y int) { x + y; }; f(5, true);",
+			"argument 1 wrong type: want=INTEGER, got=BOOLEAN",
 		},
 	}
 	for _, tt := range tests {
@@ -326,7 +330,7 @@ func TestStringConcatenation(t *testing.T) {
 }
 
 func TestFunctionObject(t *testing.T) {
-	input := "fn(x) { x + 2; };"
+	input := "fn(x int) { x + 2; };"
 
 	evaluated := testEval(input)
 	fn, ok := evaluated.(*object.Function)
@@ -339,7 +343,7 @@ func TestFunctionObject(t *testing.T) {
 			fn.Parameters)
 	}
 
-	if fn.Parameters[0].String() != "x" {
+	if fn.Parameters[0].Name.String() != "x" {
 		t.Fatalf("parameter is not 'x'. got=%q", fn.Parameters[0])
 	}
 
@@ -354,12 +358,12 @@ func TestFunctionApplication(t *testing.T) {
 		input    string
 		expected int64
 	}{
-		{"var identity = fn(x) { x; }; identity(5);", 5},
-		{"var identity = fn(x) { return x; }; identity(5);", 5},
-		{"var double = fn(x) { x * 2; }; double(5);", 10},
-		{"var add = fn(x, y) { x + y; }; add(5, 5);", 10},
-		{"var add = fn(x, y) { x + y; }; add(5 + 5, add(5, 5));", 20},
-		{"fn(x) { x; }(5)", 5},
+		{"var identity = fn(x int) { x; }; identity(5);", 5},
+		{"var identity = fn(x int) { return x; }; identity(5);", 5},
+		{"var double = fn(x int) { x * 2; }; double(5);", 10},
+		{"var add = fn(x int, y int) { x + y; }; add(5, 5);", 10},
+		{"var add = fn(x int, y int) { x + y; }; add(5 + 5, add(5, 5));", 20},
+		{"fn(x int) { x; }(5)", 5},
 	}
 
 	for _, tt := range tests {

@@ -358,6 +358,13 @@ func (p *Parser) parseFunctionParameters() []ast.FunctionParam {
 		ast.FunctionParam{Name: ident, Type: ""},
 	)
 
+	p.nextToken()
+	if !p.curTokenIs(token.TYPE) {
+		p.errors = append(p.errors, "expected type after function parameter name")
+		return nil
+	}
+	identifiers[0].Type = p.curToken.Literal
+
 	for p.peekTokenIs(token.COMMA) {
 		p.nextToken()
 		p.nextToken()
@@ -365,6 +372,12 @@ func (p *Parser) parseFunctionParameters() []ast.FunctionParam {
 		identifiers = append(identifiers,
 			ast.FunctionParam{Name: ident, Type: ""},
 		)
+		p.nextToken()
+		if !p.curTokenIs(token.TYPE) {
+			p.errors = append(p.errors, "expected type after function parameter name")
+			return nil
+		}
+		identifiers[len(identifiers)-1].Type = p.curToken.Literal
 	}
 
 	if !p.expectPeek(token.RPAREN) {

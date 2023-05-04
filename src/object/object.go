@@ -25,6 +25,20 @@ const (
 	OBJ_LOOP         = "LOOP"
 )
 
+var variableTypes = map[string]ObjectType{
+	"int":    OBJ_INTEGER,
+	"float":  OBJ_FLOAT,
+	"string": OBJ_STRING,
+	"bool":   OBJ_BOOLEAN,
+	"null":   OBJ_NULL,
+	"fn":     OBJ_FUNCTION,
+}
+
+func VariableType(name string) (ObjectType, bool) {
+	v, ok := variableTypes[name]
+	return v, ok
+}
+
 type (
 	Object interface {
 		Type() ObjectType
@@ -112,7 +126,7 @@ func (rv *ReturnValue) Type() ObjectType { return OBJ_RETURN_VALUE }
 func (rv *ReturnValue) Inspect() string  { return rv.Value.Inspect() }
 
 type Function struct {
-	Parameters []*ast.Identifier
+	Parameters []ast.FunctionParam
 	Body       *ast.BlockStatement
 	Env        *Environment
 }
@@ -125,7 +139,7 @@ func (f *Function) Inspect() string {
 
 	params := []string{}
 	for _, p := range f.Parameters {
-		params = append(params, p.String())
+		params = append(params, p.Name.String()+" "+p.Type)
 	}
 
 	out += fmt.Sprintf("fn(%s) {\n", strings.Join(params, ", "))

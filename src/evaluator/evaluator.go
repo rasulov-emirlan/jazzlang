@@ -355,6 +355,20 @@ func evalForExpression(fle *ast.ForExpression, env *object.Environment) object.O
 func applyFunction(fn object.Object, args []object.Object) object.Object {
 	switch fn := fn.(type) {
 	case *object.Function:
+		// arguments type check
+		if len(args) != len(fn.Parameters) {
+			return newError("wrong number of arguments: want=%d, got=%d", len(fn.Parameters), len(args))
+		}
+		for i, param := range fn.Parameters {
+			expectedType, ok := object.VariableType(param.Type)
+			if !ok {
+				return newError("unknown variable type: %s", param.Type)
+			}
+			if args[i].Type() != expectedType {
+				return newError("argument %d wrong type: want=%s, got=%s", i, expectedType, args[i].Type())
+			}
+		}
+
 		extendedEnv := extendFunctionEnv(fn, args)
 		evaluated := Eval(fn.Body, extendedEnv)
 		return unwrapReturnValue(evaluated)
@@ -369,7 +383,7 @@ func extendFunctionEnv(fn *object.Function, args []object.Object) *object.Enviro
 	env := object.NewEnclosedEnvironment(fn.Env)
 
 	for paramIdx, param := range fn.Parameters {
-		env.Set(param.Value, args[paramIdx])
+		env.Set(param.Name.Value, args[paramIdx])
 	}
 
 	return env

@@ -2,6 +2,7 @@ package file
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/rasulov-emirlan/sunjar/src/evaluator"
@@ -34,8 +35,13 @@ func EvaluateFile(path string) error {
 
 	l := lexer.New(string(buff))
 	program := parser.New(l)
+	if len(program.Errors()) != 0 {
+		log.Println("Parser:", program.Errors())
+	}
 	env := object.NewEnvironment()
-	evaluator.Eval(program.ParseProgram(), env)
-
+	res := evaluator.Eval(program.ParseProgram(), env)
+	if res.Type() == object.OBJ_ERROR {
+		log.Println("Evaluator:", res.Inspect())
+	}
 	return nil
 }
