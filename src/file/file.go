@@ -6,11 +6,12 @@ import (
 
 	"github.com/rasulov-emirlan/sunjar/src/evaluator"
 	"github.com/rasulov-emirlan/sunjar/src/lexer"
+	"github.com/rasulov-emirlan/sunjar/src/macros"
 	"github.com/rasulov-emirlan/sunjar/src/object"
 	"github.com/rasulov-emirlan/sunjar/src/parser"
 )
 
-func EvaluateFile(path string) error {
+func EvaluateFile(path string, mp macros.MacrosProcessor) error {
 	f, err := os.Open(path)
 	if err != nil {
 		return err
@@ -31,6 +32,8 @@ func EvaluateFile(path string) error {
 	if err != nil {
 		return err
 	}
+
+	buff = mp.Process(buff)
 
 	l := lexer.New(string(buff))
 	program := parser.New(l)

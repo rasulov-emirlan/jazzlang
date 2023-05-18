@@ -1,0 +1,4 @@
+for i < 10 {
+  var i = i + 1
+  print(i)
+}
