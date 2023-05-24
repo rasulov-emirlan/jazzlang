@@ -20,10 +20,12 @@ type MacrosItem struct {
 }
 
 type MacrosProcessor struct {
-	Definitions map[string][]rune
+	Definitions   map[string][]rune
+	isInitialized bool
+	isVervose     bool
 }
 
-func NewMacrosProcessor(filename string) (MacrosProcessor, error) {
+func NewMacrosProcessor(filename string, isVerbose bool) (MacrosProcessor, error) {
 	links := make(map[string]MacrosItem)
 
 	// open file
@@ -46,12 +48,20 @@ func NewMacrosProcessor(filename string) (MacrosProcessor, error) {
 	// go through links and read files from them
 	defs := make(map[string][]rune)
 
+	if isVerbose {
+		fmt.Println("Macros:")
+	}
+
 	for k, v := range links {
 		if v.SrcPlain == nil && v.SrcFile == nil {
 			return MacrosProcessor{}, fmt.Errorf("neither src_plain nor src_file is defined for %s", k)
 		}
 		if v.SrcPlain != nil && v.SrcFile != nil {
 			return MacrosProcessor{}, fmt.Errorf("both src_plain and src_file are defined for %s, they are mutually exclusive", k)
+		}
+
+		if isVerbose {
+			fmt.Printf("  %s: ", k)
 		}
 
 		if v.SrcPlain != nil {
@@ -76,10 +86,13 @@ func NewMacrosProcessor(filename string) (MacrosProcessor, error) {
 
 	}
 
-	return MacrosProcessor{defs}, nil
+	return MacrosProcessor{defs, true, isVerbose}, nil
 }
 
 func (mp MacrosProcessor) Process(src []byte) []byte {
+	if !mp.isInitialized {
+		return src
+	}
 	// TODO: very inefficient, fix it
 	for k, v := range mp.Definitions {
 		src = []byte(strings.ReplaceAll(string(src), k, string(v)))

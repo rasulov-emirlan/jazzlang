@@ -12,17 +12,23 @@ import (
 )
 
 var (
-	isRepl     = flag.Bool("repl", false, "Starts the REPL")
-	macrosFlag = flag.String("macros", "macros.json", "Path to the macros file")
+	isRepl    = flag.Bool("repl", false, "Starts the REPL")
+	isMacros  = flag.Bool("macros", false, "Will parse macros from macros.json in the current directory")
+	isVerbose = flag.Bool("verbose", false, "Will print verbose output")
 )
 
 func main() {
 	flag.Parse()
 
-	mp, err := macros.NewMacrosProcessor(*macrosFlag)
-	if err != nil {
-		fmt.Println("Could not create macros processor due to error:", err)
-		os.Exit(1)
+	mp := macros.MacrosProcessor{}
+	err := error(nil)
+
+	if *isMacros {
+		mp, err = macros.NewMacrosProcessor("macros.json", *isVerbose)
+		if err != nil {
+			fmt.Println("Could not create macros processor due to error:", err)
+			os.Exit(1)
+		}
 	}
 
 	if *isRepl {
@@ -38,10 +44,10 @@ func main() {
 		repl.Start(os.Stdin, os.Stdout)
 	}
 
-	if len(os.Args) != 2 {
+	if len(os.Args) < 2 {
 		fmt.Println("Please provide a file to evaluate")
 		os.Exit(1)
 	}
 
-	file.EvaluateFile(os.Args[1], mp)
+	file.EvaluateFile(os.Args[len(os.Args)-1], mp)
 }
