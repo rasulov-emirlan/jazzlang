@@ -35,10 +35,21 @@ func EvaluateFile(path string, mp macros.MacrosProcessor) error {
 
 	buff = mp.Process(buff)
 
-	l := lexer.New(string(buff))
+	// first convert it to string and then to []rune, because we do not want to lose encoding
+	l := lexer.New([]rune(string(buff)))
 	program := parser.New(l)
+	if program == nil {
+		return fmt.Errorf("could not parse file %s", path)
+	}
+	if len(program.Errors()) != 0 {
+		return fmt.Errorf("could not parse file %s: %v", path, program.Errors())
+	}
+
 	env := object.NewEnvironment()
-	evaluator.Eval(program.ParseProgram(), env)
+	res := evaluator.Eval(program.ParseProgram(), env)
+	if res != nil && res.Type() == object.OBJ_ERROR {
+		fmt.Println(res.Inspect())
+	}
 
 	return nil
 }

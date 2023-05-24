@@ -542,7 +542,7 @@ func TestLoops(t *testing.T) {
 	`
 	expected := 10
 
-	l := lexer.New(input)
+	l := lexer.New([]rune(input))
 	p := parser.New(l)
 	program := p.ParseProgram()
 	env := object.NewEnvironment()
@@ -559,7 +559,7 @@ func TestLoops(t *testing.T) {
 }
 
 func testEval(input string) object.Object {
-	l := lexer.New(input)
+	l := lexer.New([]rune(input))
 	p := parser.New(l)
 	program := p.ParseProgram()
 	env := object.NewEnvironment()

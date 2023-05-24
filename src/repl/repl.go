@@ -30,7 +30,7 @@ func Start(in io.Reader, out io.Writer) {
 			return
 		}
 
-		l := lexer.New(line)
+		l := lexer.New([]rune(line))
 		p := parser.New(l)
 
 		program := p.ParseProgram()

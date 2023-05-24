@@ -12,12 +12,19 @@ const (
 	MacrosLimit     = 10000
 )
 
+// MacrosItem is a struct for json unmarshalling.
+// Important: SrcPlain and SrcFile are mutually exclusive.
+type MacrosItem struct {
+	SrcPlain *string `json:"src_plain"`
+	SrcFile  *string `json:"src_file"`
+}
+
 type MacrosProcessor struct {
 	Definitions map[string][]rune
 }
 
 func NewMacrosProcessor(filename string) (MacrosProcessor, error) {
-	links := make(map[string]string)
+	links := make(map[string]MacrosItem)
 
 	// open file
 	f, err := os.Open(filename)
@@ -40,16 +47,33 @@ func NewMacrosProcessor(filename string) (MacrosProcessor, error) {
 	defs := make(map[string][]rune)
 
 	for k, v := range links {
-		f, err := os.Open(v)
-		if err != nil {
-			return MacrosProcessor{}, fmt.Errorf("could not open file %s: %v", v, err)
+		if v.SrcPlain == nil && v.SrcFile == nil {
+			return MacrosProcessor{}, fmt.Errorf("neither src_plain nor src_file is defined for %s", k)
 		}
-		b := make([]byte, MacrosLimit)
-		n, err := f.Read(b)
-		if err != nil {
-			return MacrosProcessor{}, fmt.Errorf("could not read file %s: %v", v, err)
+		if v.SrcPlain != nil && v.SrcFile != nil {
+			return MacrosProcessor{}, fmt.Errorf("both src_plain and src_file are defined for %s, they are mutually exclusive", k)
 		}
-		defs[k] = []rune(string(b[:n]))
+
+		if v.SrcPlain != nil {
+			defs[k] = []rune(*v.SrcPlain)
+			continue
+		}
+
+		// open file
+		f, err := os.Open(string(*v.SrcFile))
+		if err != nil {
+			return MacrosProcessor{}, fmt.Errorf("could not open file %s: %v", string(*v.SrcFile), err)
+		}
+		macros := make([]byte, MacrosLimit)
+		n, err := f.Read(macros)
+		if err != nil {
+			return MacrosProcessor{}, fmt.Errorf("could not read file %s: %v", string(*v.SrcFile), err)
+		}
+		if n == 0 {
+			return MacrosProcessor{}, fmt.Errorf("file %s is empty", string(*v.SrcFile))
+		}
+		defs[k] = []rune(string(macros[:n]))
+
 	}
 
 	return MacrosProcessor{defs}, nil

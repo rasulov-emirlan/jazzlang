@@ -7,7 +7,7 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	input := `var five = 5;
+	input := []rune(`var а = 5;
 						var ten = 10;
 
 						var add = fn(x, y) {
@@ -39,14 +39,14 @@ func TestNextToken(t *testing.T) {
 						{"foo": "bar"}
 
 						var float = 1.2;
-						`
+						`)
 
 	tests := []struct {
 		expectedType    token.TokenType
 		expectedLiteral string
 	}{
 		{token.VAR, "var"},
-		{token.IDENT, "five"},
+		{token.IDENT, "а"},
 		{token.ASSIGN, "="},
 		{token.INT, "5"},
 		{token.SEMICOLON, ";"},

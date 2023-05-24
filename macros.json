@@ -1,5 +1,21 @@
 
 {
-  "кыйкыр": "macros/hello.sunj",
-  "loop": "macros/loop.sunj"
+  "сулууЖазуу": {
+    "src_file":"macros/function.sunj"
+  },
+  "өзгөрмө": {
+    "src_plain": "var"
+  },
+  "жазуу": {
+    "src_plain": "print"
+  },
+  "милдети": {
+    "src_plain": "fn"
+  },
+  "чыгар": {
+    "src_plain": "return"
+  },
+  "эгерде": {
+    "src_plain": "if"
+  }
 }

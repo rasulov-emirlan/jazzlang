@@ -2,18 +2,19 @@ package lexer
 
 import (
 	"strings"
+	"unicode"
 
 	"github.com/rasulov-emirlan/sunjar/src/token"
 )
 
 type Lexer struct {
-	input        string
+	input        []rune
 	position     int  // current position in input (points to current char)
 	readPosition int  // current reading position in input (after current char)
-	currentChar  byte // current char under examination
+	currentChar  rune // current char under examination
 }
 
-func New(input string) *Lexer {
+func New(input []rune) *Lexer {
 	l := &Lexer{input: input}
 	l.readChar() // state position before starting lexing
 	return l
@@ -98,7 +99,7 @@ func (l *Lexer) NextToken() token.Token {
 	return tok
 }
 
-func newToken(tokenType token.TokenType, ch byte) token.Token {
+func newToken(tokenType token.TokenType, ch rune) token.Token {
 	return token.Token{Type: tokenType, Literal: string(ch)}
 }
 
@@ -110,7 +111,7 @@ func (l *Lexer) readString() string {
 			break
 		}
 	}
-	return l.input[position:l.position]
+	return string(l.input[position:l.position])
 }
 
 func (l *Lexer) readChar() {
@@ -120,7 +121,7 @@ func (l *Lexer) readChar() {
 		l.currentChar = l.input[l.readPosition]
 	}
 	l.position = l.readPosition
-	l.readPosition += 1
+	l.readPosition++
 }
 
 func (l *Lexer) readNumber() string {
@@ -128,16 +129,15 @@ func (l *Lexer) readNumber() string {
 	for isDigit(l.currentChar) {
 		l.readChar()
 	}
-	return l.input[position:l.position]
+	return string(l.input[position:l.position])
 }
 
-func isLetter(character byte) bool {
-	return 'a' <= character && character <= 'z' ||
-		'A' <= character && character <= 'Z' || character == '_'
+func isLetter(character rune) bool {
+	return unicode.IsLetter(character) || character == '_'
 }
 
-func isDigit(character byte) bool {
-	return '0' <= character && character <= '9' || character == '.'
+func isDigit(character rune) bool {
+	return unicode.IsDigit(character) || character == '.'
 }
 
 // readIdentifier reads a sequence of characters that are letters
@@ -146,7 +146,7 @@ func (l *Lexer) readIdentifier() string {
 	for isLetter(l.currentChar) {
 		l.readChar()
 	}
-	return l.input[position:l.position]
+	return string(l.input[position:l.position])
 }
 
 // skipWhitespace advances the position until the next non-whitespace character
@@ -157,9 +157,9 @@ func (l *Lexer) skipWhitespace() {
 }
 
 // peekChar returns the next character in the input without advancing the position
-func (l *Lexer) peekChar() byte {
+func (l *Lexer) peekChar() rune {
 	if l.readPosition >= len(l.input) {
 		return 0
 	}
-	return l.input[l.readPosition]
+	return []rune(l.input)[l.readPosition]
 }
